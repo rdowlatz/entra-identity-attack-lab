@@ -1,0 +1,41 @@
+// =============================================================
+// Supporting Investigation Queries
+// -------------------------------------------------------------
+// The exploratory queries used before the detection rules, kept
+// for reference.
+// =============================================================
+
+
+// -------------------------------------------------------------
+// 1. Sanity check: confirm logs are flowing into the workspace
+// -------------------------------------------------------------
+SigninLogs
+| take 10
+
+
+// -------------------------------------------------------------
+// 2. Raw failed-credential events (spray investigation)
+//    Every 50126 failure in the window, oldest first, so the
+//    spray can be read as it unfolded.
+// -------------------------------------------------------------
+SigninLogs
+| where TimeGenerated > ago(1h)
+| where ResultType == "50126"
+| project TimeGenerated, UserPrincipalName, IPAddress, ResultType, ResultDescription, AppDisplayName
+| sort by TimeGenerated asc
+
+
+// -------------------------------------------------------------
+// 3. Successful sign-ins by location (impossible-travel investigation)
+//    Shows a single user's successful logins with city/country,
+//    which surfaces the two-location pattern before the detection
+//    rule formalizes it.
+// -------------------------------------------------------------
+SigninLogs
+| where TimeGenerated > ago(2h)
+| where UserPrincipalName == "user@yourtenant.onmicrosoft.com"
+| where ResultType == 0
+| project TimeGenerated, UserPrincipalName, IPAddress, Location,
+          City    = tostring(LocationDetails.city),
+          Country = tostring(LocationDetails.countryOrRegion)
+| sort by TimeGenerated asc
