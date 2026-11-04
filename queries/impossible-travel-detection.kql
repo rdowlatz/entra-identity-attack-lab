@@ -1,0 +1,24 @@
+// =============================================================
+// Impossible Travel Detection
+// -------------------------------------------------------------
+// Flags a user whose COUNTRY changed between two consecutive
+// SUCCESSFUL sign-ins (code 0). Compares each login to the one
+// before it for the same user.
+//
+// Signal: same account, two countries, minutes apart.
+// MITRE ATT&CK: T1078 - Valid Accounts
+// =============================================================
+
+SigninLogs
+| where TimeGenerated > ago(2h)
+| where ResultType == 0                                             // successful sign-ins only
+| project TimeGenerated, UserPrincipalName, IPAddress,
+          Country = tostring(LocationDetails.countryOrRegion)
+| sort by UserPrincipalName asc, TimeGenerated asc                  // line up each user's logins in time order
+| serialize                                                         // required before prev() can look at the row above
+| extend PrevCountry = prev(Country),
+         PrevUser    = prev(UserPrincipalName),
+         PrevTime    = prev(TimeGenerated)
+| where UserPrincipalName == PrevUser and Country != PrevCountry    // same user, country changed = the detection
+| extend MinutesApart = datetime_diff('minute', TimeGenerated, PrevTime)
+| project UserPrincipalName, PrevCountry, Country, PrevTime, TimeGenerated, MinutesApart, IPAddress
