@@ -64,8 +64,8 @@ The pattern that confirms a spray rather than an isolated login mistake:
 - **Tight window.** All six failures fell inside 2 minutes 49 seconds. No legitimate scenario produces six different users failing from one IP that fast.
 - **Uniform result.** Every event was code 50126, from the same application (OfficeHome).
 
-![Password spray detection row](screenshots/spray-detection.png)
-![Password spray raw events](screenshots/spray-raw-events.png)
+![Password spray detection row](screenshots/spray-detection.jpg)
+![Password spray raw events](screenshots/spray-raw-events.jpg)
 
 ### Detection
 
@@ -104,8 +104,9 @@ Confidence: **High.** One source, six distinct targets, a single uniform failure
 - **Two countries, 2 minutes apart.** The country changed from CA to US between consecutive sign-ins with only 2 minutes elapsed.
 - The repeated Los Angeles entries after the first are the same session re-authenticating (token refresh, app re-auth). They did not trigger the detection because the country did not change, the logic working correctly.
 
-![Two-location sign-in list](screenshots/two-location-list.png)
-![Impossible travel detection row](screenshots/impossible-travel-detection.png)
+![Two-location sign-in list](screenshots/two-location-list-van.jpg)
+![Two-location sign-in list](screenshots/two-location-list-la.jpg)
+![Impossible travel detection row](screenshots/impossible-travel-detection.jpg)
 
 ### Detection
 
